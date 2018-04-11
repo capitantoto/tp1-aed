@@ -1,0 +1,80 @@
+---
+title: "TP1 Análisis Exploratorio de Datos"
+author: "Gonzalo & Octavio"
+date: "April 11, 2018"
+output: html_document
+---
+
+## Inicialización
+
+```{r inicializacion, }
+library(tidyverse)
+library(knitr)
+```
+
+```{r funciones}
+llenarAlbum <- function (figuritas_album = 500, figuritas_sobre = 5, sobres_con_repetidas = F) {
+  album <- rep(0, figuritas_album)
+  lleno <- ifelse(figuritas_album == 0, T, F)
+  # album <- numeric(500) es equivalente
+  n_sobres <- 0
+  while(!lleno) {
+    sobre_nuevo <- sample(1:figuritas_album, figuritas_sobre, replace = sobres_con_repetidas, weight)
+    for(figurita in sobre_nuevo) {
+      album[figurita] <- album[figurita] + 1
+    }
+    n_sobres <- n_sobres + 1
+    lleno <- all(album != 0)
+  }
+  return(n_sobres)
+}
+
+simularColecciones <- function (figuritas_album = 500, figuritas_sobre = 5, sobres_con_repetidas = F, sims = 1000) {
+  colecciones <- c()
+  for(i in 1:sims) {
+    colecciones <- c(colecciones, 
+                     llenarAlbum(figuritas_album = figuritas_album,
+                                 figuritas_sobre = figuritas_sobre,
+                                 sobres_con_repetidas = sobres_con_repetidas))
+    if (i %% 100 == 0) {print(i)}
+  }
+  return(colecciones)
+}
+```
+
+```{r generar_datos}
+k <- rep(c(5,10,50,100), 100)
+myfun <- function(i){simularColecciones(sims = i)}
+# resultados <- map(k, myfun)
+load("resultados.RData")
+medias <- map(resultados, mean)
+recuperar_medias <- function(i){medias[[i]]}
+data.frame(k = k,
+           obs = 1:length(k),
+           a_k = unlist(medias)) -> df
+
+```
+
+```{r boxplot}
+ggplot(data = df, mapping = aes(x = k, y = a_k, fill = factor(k))) + geom_boxplot()
+```
+
+```{r histograma}
+ggplot(data = df, mapping = aes(x = a_k, group = k, fill = factor(k))) +
+  geom_histogram(bins = 20) +
+  facet_grid(k ~ .)
+```
+
+```{r}
+df %>%
+  group_by(k) %>%
+  summarise(
+    media_ak = mean(a_k),
+    mediana_ak = median(a_k),
+    media_ak_01 = mean(a_k, trim = 0.1),
+    var_ak = var(a_k),
+    iqr_ak = IQR(a_k),
+    mad_ak = mad(a_k)
+  ) -> estadisticos_resumen
+kable(estadisticos_resumen)
+```
