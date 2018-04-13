@@ -45,22 +45,24 @@ llenarAlbum <- function (figuritas_album = 500, figuritas_sobre = 5, n_albumes =
   return(n_sobres)
 }
 
-# k <- rep(c(5,10,50,100), 1000)
-# obs <- map(k, ~replicate(., llenarAlbum()))
-# data_frame(k = k,
-#           obs = obs) %>%
-#  mutate(a_k = map_dbl(obs, mean)) -> datos
-# Dependiendo de si se quiere generar de cero el análisis o se prefiere usar
-# los datos precalculados se deberán comentar alguna de las siguientes líneas
-# save(datos, file='TP1.RData')
-# rm(datos)
-load('TP1.RData')
+
+
 ```
 
-```{r generar_datos}
+```{r generar_datos, eval=FALSE}
+k <- rep(c(5,10,50,100), 1000)
+obs <- map(k, ~replicate(., llenarAlbum()))
+data_frame(k = k,
+           obs = obs) %>%
+mutate(a_k = map_dbl(obs, mean)) -> datos
+
+save(datos, file='TP1.RData')
+rm(datos)
 ```
 
 ```{r boxplot}
+load('TP1.RData')
+
 ggplot(data = datos, mapping = aes(x = k, y = a_k, fill = factor(k))) + geom_boxplot()
 ```
 
