@@ -2,7 +2,9 @@
 title: "TP1 Análisis Exploratorio de Datos"
 author: "Gonzalo Barrera Borla y Octavio M. Duarte"
 date: "Abril 11, 2018"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r inicializacion, include=FALSE, warning=FALSE}
@@ -23,7 +25,9 @@ Esto permite llevar la cuenta de las repetidas en caso de que se quiera simular 
 Cuando todos los elementos del vector tienen valor mayor o igual a la cantidad de álbumes especificados, significa que se completaron las colecciones. En particular cuando todos son mayores o iguales a 1 hay un álbum lleno. 
 
 ```{r funciones}
-llenarAlbum <- function (figuritas_album = 500, figuritas_sobre = 5, n_albumes = 1, sobres_con_repetidas = F, pesos = rep(1, figuritas_album)) {
+llenarAlbum <- function (
+  figuritas_album = 500, figuritas_sobre = 5, n_albumes = 1, sobres_con_repetidas = F, 
+  pesos = rep(1, figuritas_album)) {
   # figuritas_album:= cantidad de figuritas distintas del album
   # figuritas_sobre:= cantidad de figuritas por sobre
   # n_albumes:= cantidad de albumes que se pretende completar
