@@ -1,6 +1,6 @@
 ---
 title: "TP1 Análisis Exploratorio de Datos"
-author: "Gonzalo y Octavio"
+author: "Gonzalo Barrera Borla y Octavio M. Duarte"
 date: "Abril 11, 2018"
 output: html_document
 ---
