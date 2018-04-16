@@ -35,7 +35,7 @@ llenarAlbum <- function (
   #   mercado de n coleccionistas "altruistas", que intercambian toda figurita repetida.
   # sobres_con_repetidas:= ¿Pueden los sobres contener figuritas repetidas?
   # pesos:= (opcional) Pesos para la "dificultad relativa" de cada figurita
-  
+    
   if (figuritas_album < 1) {
     print(paste("Pruebe con una cantidad positiva de figuritas por album."))
     return()

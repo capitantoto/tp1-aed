@@ -131,7 +131,9 @@ $(document).ready(function () {
 <p>En esencia es un bucle <strong>while</strong> que en cada ciclo aprovecha <strong>sample</strong> para generar un sobre de cinco figuritas. El album fue modelado como un conjunto de <strong>figuritas-album</strong> números que se inicializa en 0 para cada componente y suma 1 a cada una de ellas, cada vez que un sobre contiene su número respectivo.</p>
 <p>Esto permite llevar la cuenta de las repetidas en caso de que se quiera simular un mayor número de colecciones en las condiciones indicadas antes.</p>
 <p>Cuando todos los elementos del vector tienen valor mayor o igual a la cantidad de álbumes especificados, significa que se completaron las colecciones. En particular cuando todos son mayores o iguales a 1 hay un álbum lleno.</p>
-<pre class="r"><code>llenarAlbum &lt;- function (figuritas_album = 500, figuritas_sobre = 5, n_albumes = 1, sobres_con_repetidas = F, pesos = rep(1, figuritas_album)) {
+<pre class="r"><code>llenarAlbum &lt;- function (
+  figuritas_album = 500, figuritas_sobre = 5, n_albumes = 1, sobres_con_repetidas = F, 
+  pesos = rep(1, figuritas_album)) {
   # figuritas_album:= cantidad de figuritas distintas del album
   # figuritas_sobre:= cantidad de figuritas por sobre
   # n_albumes:= cantidad de albumes que se pretende completar
@@ -139,7 +141,7 @@ $(document).ready(function () {
   #   mercado de n coleccionistas &quot;altruistas&quot;, que intercambian toda figurita repetida.
   # sobres_con_repetidas:= ¿Pueden los sobres contener figuritas repetidas?
   # pesos:= (opcional) Pesos para la &quot;dificultad relativa&quot; de cada figurita
-  
+    
   if (figuritas_album &lt; 1) {
     print(paste(&quot;Pruebe con una cantidad positiva de figuritas por album.&quot;))
     return()
