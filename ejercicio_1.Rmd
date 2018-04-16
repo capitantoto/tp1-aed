@@ -5,24 +5,22 @@ date: "Abril 11, 2018"
 output: html_document
 ---
 
-```{r inicializacion, include=FALSE,warning=FALSE, warning=FALSE}
+```{r inicializacion, include=FALSE, warning=FALSE}
 library(tidyverse)
 library(knitr)
+library(latex2exp)
+opts_chunk$set(fig.width=12, fig.height=8, message=FALSE, comment=NA)
 ```
 
 # Función que Simula la Colección del Álbum
 
- La función elegida tiene más parámetros de los estrictamente necesarios porque nos interesó continuar el experimento y simular algunas cuestiones fuera de consigna como el efecto de un *mercado altruista* de intercambio de figuritas repetidas o de un subconjunto de *figuritas difíciles*. 
+La función elegida tiene más parámetros de los estrictamente necesarios porque nos interesó continuar el experimento y simular algunas cuestiones fuera de consigna como el efecto de un *mercado altruista* de intercambio de figuritas repetidas o de un subconjunto de *figuritas difíciles*. 
  
+En esencia es un bucle __while__ que en cada ciclo aprovecha __sample__ para generar un sobre de cinco figuritas. El album fue modelado como un conjunto de **figuritas-album** números que se inicializa en 0 para cada componente y suma 1 a cada una de ellas, cada vez que un sobre contiene su número respectivo. 
  
- En esencia es un bucle __while__ que en cada ciclo aprovecha __sample__ para generar un sobre de cinco figuritas. El album fue modelado como un conjunto de **figuritas-album** números que se inicializa en 0 para cada componente y suma 1 a cada una de ellas, cada vez que un sobre contiene su número respectivo. 
+Esto permite llevar la cuenta de las repetidas en caso de que se quiera simular un mayor número de colecciones en las condiciones indicadas antes.
  
- 
- Esto permite llevar la cuenta de las repetidas en caso de que se quiera simular un mayor número de colecciones en las condiciones indicadas antes.
- 
- 
- Cuando todos los elementos del vector tienen valor mayor a la cantidad de álbumes especificados, significa que se completó las colecciones. En particular cuando todos son mayores a 1 hay un album lleno. 
-
+Cuando todos los elementos del vector tienen valor mayor o igual a la cantidad de álbumes especificados, significa que se completaron las colecciones. En particular cuando todos son mayores o iguales a 1 hay un álbum lleno. 
 
 ```{r funciones}
 llenarAlbum <- function (figuritas_album = 500, figuritas_sobre = 5, n_albumes = 1, sobres_con_repetidas = F, pesos = rep(1, figuritas_album)) {
@@ -64,42 +62,53 @@ llenarAlbum <- function (figuritas_album = 500, figuritas_sobre = 5, n_albumes =
 
   Entendimos que este procedimiento quedaba fuera de la consigna, así que optamos por el medio que nos pareció más conveniente: generamos un *dataframe* que va tomando sus propias columnas como parámetros para alimentar la función llenarAlbum, de tal forma que la información está organizada desde el momento de su generación.
 
+La columna `k` indica el valor del subíndice $a_{k}$, que determina la cantidad de simulaciones a realizar. Para cada $k = 5, 10, 50, 100$, realizamos $n = 1000$ ensayos de $k$ simulaciones cada uno, y guardamos el vector con los $k$ resultados en la columna `obs`. Finalmente, "mutamos" los datos de la columna `obs` aplicándoles la función `mean`, ya que su promedio nos provee una buena estimación del valor esperado de $a_k$.
 
+Guardamos el *dataframe* completo en disco para simplificar la creación de este informe, pero siéntase libre de ejecutar este fragmento de código y recrearlos.
 ```{r generar_datos, eval=FALSE}
-k <- rep(c(5,10,50,100), 1000)
+# Usamos 1000 en lugar de 100 para mejorar la "definición" de los gráficos
+n <- 1000
+k <- rep(c(5,10,50,100), n)
 obs <- map(k, ~replicate(., llenarAlbum()))
 data_frame(k = k,
            obs = obs) %>%
-mutate(a_k = map_dbl(obs, mean)) -> datos
+  mutate(a_k = map_dbl(obs, mean)) -> datos
 
 save(datos, file='TP1.RData')
-rm(datos)
 ```
 
-
 # Gráficos de Caja
-
-
 
 ```{r boxplot}
 load('TP1.RData')
 
-ggplot(data = datos, mapping = aes(x = k, y = a_k, fill = factor(k))) + geom_boxplot()
+ggplot(data = datos, mapping = aes(x = factor(k), y = a_k, fill = factor(k))) +
+  geom_boxplot() +
+  labs(title = TeX("Fig. 1: Boxplot para $a_k$, agrupados según k"),
+       x = "k", y = TeX("$a_k$"), fill = "k")-> fig1_boxplot
+
+ggsave("fig1_boxplot.png", fig1_boxplot, width = 12, height = 8)
+fig1_boxplot
 ```
 
-Los gráficos de caja no revelan ninguna tendencia inusual. Para una baja cantidad de repeticiones, la variable estudiada presenta una gran dispersión pero esta se reduce notablemente con el incremento de la variable k hasta el punto de que el diagrama de a-100 y sus datos atípicos prácticamente caben dentro de la caja del diagrama de a-5
+Los gráficos de caja no revelan ninguna tendencia inusual. Para una baja cantidad de repeticiones, la variable estudiada presenta una gran dispersión pero esta se reduce notablemente con el incremento de la variable $k$ hasta el punto de que el diagrama de $a_{100}$ y sus datos atípicos prácticamente caben dentro de la caja del diagrama de $a_{5}$
 
 
 ```{r histograma}
-ggplot(datos, aes(x = a_k, group = k, fill = factor(k))) +
+ggplot(datos, aes(x = a_k, group = factor(k), fill = factor(k))) +
   geom_histogram(bins = 70) +
-  facet_grid(k ~ .)
+  facet_grid(k ~ .) +
+  labs(title = TeX("Fig. 2: Histogramas para $a_k$, agrupados según k (n = 1000)"),
+       x = TeX("$a_k$"), y = "# Obs", fill = "k")-> fig2_hist
+
+ggsave("fig2_hist.png", fig2_hist, width = 12, height = 8)
+fig2_hist
 ```
 
 El histograma parece coincidir con lo exhibido por el gráfico de caja: a medida que se incrementa la variable k de datos usados para calcular la esperanza esta se estabiliza y se concentra.
 
 
-```{r}
+```{r tabla_resumen}
 datos %>%
   group_by(k) %>%
   summarise(
